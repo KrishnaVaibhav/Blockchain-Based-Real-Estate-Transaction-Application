@@ -1,0 +1,79 @@
+[
+    {
+        "transactionName": "createAsset",
+        "transactionLabel": "Create a new real estate asset",
+        "arguments": [
+            "sellerId456",
+            "1000000"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "makeOffer",
+        "transactionLabel": "Make an offer on a real estate asset",
+        "arguments": [
+            "assetId123",
+            "buyerId789",
+            "950000"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "acceptOffer",
+        "transactionLabel": "Accept an offer on a real estate asset",
+        "arguments": [
+            "assetId123"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "rejectOffer",
+        "transactionLabel": "Reject an offer on a real estate asset",
+        "arguments": [
+            "assetId123"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "submitInspectionReport",
+        "transactionLabel": "Submit an inspection report for a real estate asset",
+        "arguments": [
+            "assetId123",
+            "inspectorId321",
+            "ipfsHashOfReport"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "fundEscrow",
+        "transactionLabel": "Fund escrow for a real estate transaction",
+        "arguments": [
+            "assetId123"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "propertyTransfer",
+        "transactionLabel": "Transfer property to the buyer",
+        "arguments": [
+            "assetId123"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "releaseEscrow",
+        "transactionLabel": "Release escrow and finalize the transaction",
+        "arguments": [
+            "assetId123"
+        ],
+        "transientData": {}
+    },
+    {
+        "transactionName": "deleteAsset",
+        "transactionLabel": "Delete an asset from the blockchain ledger",
+        "arguments": [
+            "assetId123"
+        ],
+        "transientData": {}
+    }
+]

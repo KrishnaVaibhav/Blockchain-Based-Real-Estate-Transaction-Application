@@ -1,0 +1,6 @@
+start app: node ./app.js
+
+create: http://localhost:8952/create?id=7&value=test
+read: http://localhost:8952/read?id=7
+update: http://localhost:8952/update?id=7&value=test
+delete: http://localhost:8952/delete?id=7

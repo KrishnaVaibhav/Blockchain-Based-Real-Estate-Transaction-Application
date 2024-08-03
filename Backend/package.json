@@ -1,0 +1,27 @@
+{
+    "name": "asset-transfer-basic",
+    "version": "1.0.0",
+    "private": true,
+    "description": "A supplementary project for actor-fsm-model",
+    "engines": {
+        "node": ">=12",
+        "npm": ">=5"
+    },
+    "engineStrict": true,
+    "author": "Tejas Pabbu",
+    "dependencies": {
+        "axios": "^1.7.3",
+        "express": "^4.19.2",
+        "fabric-ca-client": "2.2.2",
+        "fabric-network": "2.2.2",
+        "form-data": "^4.0.0",
+        "ipfs-http-client": "^50.1.2",
+        "jquery": "^3.6.0",
+        "multer": "^1.4.5-lts.1",
+        "url": "^0.11.0",
+        "uuid": "^8.3.2"
+    },
+    "scripts": {
+        "start": "node app.js"
+    }
+}
