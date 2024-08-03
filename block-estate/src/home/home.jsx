@@ -5,7 +5,7 @@ import "./home.css"; // Import the custom CSS file
 const Home = () => {
   return (
     <div className=" container">
-      <h2 className="my-3" >Blockchain-Based-Real-Estate-Transaction-Application</h2>
+      <h2 className="my-3" >Blockchain Based Real Estate Transaction Application</h2>
       <div className="row">
         <div className="section mx-5 col-5 ">
         <h2>Phase 1 : Quote Negotiation</h2>
