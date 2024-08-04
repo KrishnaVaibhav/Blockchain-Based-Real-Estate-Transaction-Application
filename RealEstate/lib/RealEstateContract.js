@@ -1,17 +1,16 @@
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
-const { v4: uuidv4 } = require('uuid'); // Include UUID library for generating unique identifiers
 
 class RealEstateAsset {
     constructor(obj) {
         Object.assign(this, obj);
     }
 
-    static createInstance(buyer, seller, offerPrice, ipfsHash) {
+    static createInstance(assetId, buyer, seller, offerPrice, ipfsHash) {
         // Generate a unique assetId using UUID and initialize with status 'available'
         return new RealEstateAsset({
-            assetId: uuidv4(),
+            assetId: assetId,
             buyer: buyer,
             seller: seller,
             offerPrice: offerPrice,
@@ -32,10 +31,9 @@ class RealEstateAsset {
 
 class RealEstateContract extends Contract {
 
-    async createAsset(ctx, seller, offerPrice) {
-        const asset = RealEstateAsset.createInstance('', seller, offerPrice, '');
+    async createAsset(ctx, assetId, seller, offerPrice) {
+        const asset = RealEstateAsset.createInstance(assetId,'', seller, offerPrice, '','available');
         await ctx.stub.putState(asset.assetId, asset.serialize());
-        return asset.assetId; // Return the newly generated assetId
     }
 
     async getAsset(ctx, assetId) {
@@ -46,12 +44,28 @@ class RealEstateContract extends Contract {
         return RealEstateAsset.deserialize(buffer);
     }
 
+    async getMinimumPrice(ctx, assetId) {
+        const asset = await this.getAsset(ctx, assetId);
+        if (asset.status !== 'available') {
+            throw new Error(`No valid offer made for asset ${assetId}`);
+        }
+        return asset.offerPrice;
+    }
+
     async makeOffer(ctx, assetId, buyer, offerPrice) {
         const asset = await this.getAsset(ctx, assetId);
         asset.buyer = buyer;
         asset.offerPrice = offerPrice;
         asset.status = 'offerMade';
         await ctx.stub.putState(assetId, asset.serialize());
+    }
+
+    async getOfferPrice(ctx, assetId) {
+        const asset = await this.getAsset(ctx, assetId);
+        if (asset.status !== 'offerMade') {
+            throw new Error(`No valid offer made for asset ${assetId}`);
+        }
+        return asset.offerPrice;
     }
 
     async acceptOffer(ctx, assetId) {
@@ -83,6 +97,14 @@ class RealEstateContract extends Contract {
         asset.ipfsHash = ipfsHash;
         asset.status = 'inspectionComplete';
         await ctx.stub.putState(assetId, asset.serialize());
+    }
+
+    async getInspectionReport(ctx, assetId) {
+        const asset = await this.getAsset(ctx, assetId);
+        if (!asset.ipfsHash) {
+            throw new Error(`No inspection report found for asset ${assetId}`);
+        }
+        return asset.ipfsHash;
     }
 
     async fundEscrow(ctx, assetId) {

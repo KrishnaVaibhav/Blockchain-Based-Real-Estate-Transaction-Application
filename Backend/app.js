@@ -8,11 +8,10 @@ const fs = require('fs');
 const { create } = require('ipfs-http-client');
 const upload = multer({ storage: multer.memoryStorage() });
 const app = express();
-const axios = require('axios');
-const FormData = require('form-data'); 
+
 
 const ipfs = create({
-    host: '0.0.0.0',
+    host: 'localhost',
     port: 5001,
     protocol: 'http',
     headers: {
@@ -21,12 +20,9 @@ const ipfs = create({
   });
   
 const channelName = 'channel1';
-const chaincodeName = 'nonPrivateData3';
+const chaincodeName = 'nonPrivateData6';
 const walletPath = path.join(__dirname, 'Org1');
-// const walletPath = path.join(__dirname, 'wallet');
 const ccpPath = path.resolve(__dirname, 'RealEstateProjectOrg1GatewayConnection.json');
-// const mspOrg1 = 'Org1MSP';
-// const org1UserId = 'appUser';
 const identity='Org1 Admin';
 const host = '0.0.0.0';
 const port = 8952;
@@ -51,13 +47,43 @@ async function initializeHyperledgerNetwork() {
 async function main() {
     const contract = await initializeHyperledgerNetwork();
 
-    app.post('/createAsset', async (req, res) => {
-        const { seller, offerPrice } = req.body;
+    app.post('/submitPrice', async (req, res) => {
+        const { assetId, seller, offerPrice } = req.body;
         try {
-            const assetId = await contract.submitTransaction('createAsset', seller, offerPrice);
+            await contract.submitTransaction('createAsset', assetId, seller, offerPrice);
             res.status(200).send({ message: 'Asset created successfully', assetId: assetId.toString() });
         } catch (error) {
             res.status(500).send(`Server error: ${error.message}`);
+        }
+    });
+
+    app.post('/getMinimumPrice', async (req, res) => {
+        const { assetId } = req.body;
+
+        try {
+            // Get the asset details from the ledger
+            const result = await contract.evaluateTransaction('getMinimumPrice', assetId);
+            const minimumPrice = result.toString();
+
+            res.status(200).send({ minimumPrice });
+        } catch (error) {
+            console.error(`Error fetching minimum price: ${error.message}`);
+            res.status(500).send(`Error fetching minimum price: ${error.message}`);
+        }
+    });
+
+    app.post('/getOfferPrice', async (req, res) => {
+        const { assetId } = req.body;
+
+        try {
+            // Get the offer price associated with the assetId from the ledger
+            const result = await contract.evaluateTransaction('getOfferPrice', assetId);
+            const offerPrice = result.toString();
+
+            res.status(200).send({ offerPrice });
+        } catch (error) {
+            console.error(`Error fetching offer price: ${error.message}`);
+            res.status(500).send(`Error fetching offer price: ${error.message}`);
         }
     });
 
@@ -99,14 +125,51 @@ async function main() {
         const { assetId, inspector} = req.body; 
     
         try {
-            // Upload the file to IPFS using ipfs-http-client
-            const { cid } = await ipfs.add(req.file.buffer);
-    
+            console.log('Writing file to IPFS MFS...');
+            // Define the MFS path where the file will be stored
+            const mfsPath = `/reports/${Date.now()}_${req.file.originalname}`;
+
+            // Write the file to IPFS MFS
+            await ipfs.files.write(mfsPath, req.file.buffer, { create: true, parents: true });
+
+            // Get the CID of the file
+            const stats = await ipfs.files.stat(mfsPath);
+            const cid = stats.cid.toString();
+
+            // Log the CID
+            console.log(`File written to IPFS MFS with CID: ${cid}`);
+
             // Submit the transaction with the CID
-            await contract.submitTransaction('submitInspectionReport', assetId, inspector, cid.toString());
-            res.send(`Inspection report submitted with IPFS hash: ${cid.toString()}`);
+            await contract.submitTransaction('submitInspectionReport', assetId, inspector, cid);
+            res.send(`Inspection report submitted with IPFS hash: ${cid}`);
         } catch (error) {
             res.status(500).send(`Error submitting inspection report: ${error.message}`);
+        }
+    });
+
+    app.get('/getInspectionReport', async (req, res) => {
+        const { assetId } = req.query;
+    
+        try {
+            // Get the CID associated with the assetId from the ledger
+            const result = await contract.evaluateTransaction('getInspectionReport', assetId);
+            const cid = result.toString();
+    
+            // Fetch the file from IPFS using the CID
+            const fileBuffer = [];
+            for await (const chunk of ipfs.cat(cid)) {
+                fileBuffer.push(chunk);
+            }
+    
+            const fileContent = Buffer.concat(fileBuffer);
+    
+            // Set headers and send the file
+            res.setHeader('Content-Disposition', `attachment; filename="${assetId}_inspection_report"`);
+            res.setHeader('Content-Type', 'application/octet-stream');
+            res.send(fileContent);
+        } catch (error) {
+            console.error(`Error fetching inspection report: ${error.message}`);
+            res.status(500).send(`Error fetching inspection report: ${error.message}`);
         }
     });
     
