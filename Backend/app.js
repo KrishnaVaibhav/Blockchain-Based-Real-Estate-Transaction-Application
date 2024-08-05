@@ -112,7 +112,7 @@ async function main() {
     const { assetId } = req.body;
     try {
       await contract.submitTransaction("acceptOffer", assetId);
-      res.status(200).send("Offer accepted, moving to inspection phase");
+      res.status(200).send("Offer Accepted. Phase 1 Complete. ");
     } catch (error) {
       res.status(500).send(`Error accepting offer: ${error.message}`);
     }
@@ -122,7 +122,7 @@ async function main() {
     const { assetId } = req.body;
     try {
       await contract.submitTransaction("rejectOffer", assetId);
-      res.status(200).send("Offer rejected, back to negotiation");
+      res.status(200).send("Offer Rejected. Values are Reset.");
     } catch (error) {
       res.status(500).send(`Error rejecting offer: ${error.message}`);
     }
@@ -210,9 +210,17 @@ async function main() {
     const { assetId } = req.body;
     try {
       await contract.submitTransaction("fundEscrow", assetId);
-      res.status(200).send("Escrow funded, ready for property transfer");
+      res
+        .status(200)
+        .send(
+          "Phase 1 and Phase 2 Validated Successfully.\nEscrow funded by Buyer Successfully "
+        );
     } catch (error) {
-      res.status(500).send(`Error funding escrow: ${error.message}`);
+      res
+        .status(500)
+        .send(
+          `Error funding escrow: ${error.message}\nPhase 1 and Phase 2 must be completed first.`
+        );
     }
   });
 
@@ -220,7 +228,9 @@ async function main() {
     const { assetId } = req.body;
     try {
       await contract.submitTransaction("propertyTransfer", assetId);
-      res.status(200).send("Property transferred");
+      res
+        .status(200)
+        .send("Property Transferred from Seller to Buyer Successfully.");
     } catch (error) {
       res.status(500).send(`Error transferring property: ${error.message}`);
     }
@@ -230,7 +240,11 @@ async function main() {
     const { assetId } = req.body;
     try {
       await contract.submitTransaction("releaseEscrow", assetId);
-      res.status(200).send("Escrow released, transaction completed");
+      res
+        .status(200)
+        .send(
+          "Escrow Funds Released to Seller Successfully.\nTransaction completed."
+        );
     } catch (error) {
       res.status(500).send(`Error releasing escrow: ${error.message}`);
     }

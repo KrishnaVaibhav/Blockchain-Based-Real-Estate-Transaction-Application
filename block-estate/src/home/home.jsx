@@ -10,7 +10,9 @@ const Home = () => {
   const [offerPrice, setOfferPrice] = useState("");
   const [offerDetails, setOfferDetails] = useState(null);
   const [phase1Completed, setPhase1Completed] = useState(false);
-  const [message, setMessage] = useState("");
+  const [phase1Logs, setPhase1Logs] = useState("");
+  const [phase2Logs, setPhase2Logs] = useState("");
+  const [phase3Logs, setPhase3Logs] = useState("");
   const [inspectionReportFile, setInspectionReportFile] = useState(null);
   const [fileUrl, setFileUrl] = useState("");
   const [assetId, setAssetId] = useState("780800"); // Example assetId
@@ -27,10 +29,10 @@ const Home = () => {
         seller: "seller1", // Example seller
         offerPrice: minPrice,
       });
-      setMessage(response.data.message);
+      setPhase1Logs(response.data.message);
     } catch (error) {
       console.error("Error setting minimum price:", error);
-      setMessage("Error setting minimum price.");
+      setPhase1Logs("Error setting minimum price.");
     }
   };
 
@@ -43,10 +45,10 @@ const Home = () => {
         }
       );
       setFetchedMinPrice(response.data.minimumPrice);
-      setMessage("Minimum price fetched successfully!");
+      setPhase1Logs("Minimum price fetched successfully!");
     } catch (error) {
       console.error("Error fetching minimum price:", error);
-      setMessage("Error fetching minimum price.");
+      setPhase1Logs("Error fetching minimum price.");
     }
   };
 
@@ -57,10 +59,10 @@ const Home = () => {
         buyer: "buyer1", // Example buyer
         offerPrice: offerPrice,
       });
-      setMessage(response.data);
+      setPhase1Logs(response.data);
     } catch (error) {
       console.error("Error making offer:", error);
-      setMessage("Error making offer.");
+      setPhase1Logs("Error making offer.");
     }
   };
 
@@ -70,10 +72,10 @@ const Home = () => {
         assetId: assetId,
       });
       setOfferDetails(response.data);
-      setMessage("Offer details fetched successfully!");
+      setPhase1Logs("Offer details fetched successfully!");
     } catch (error) {
       console.error("Error getting offer details:", error);
-      setMessage("Error getting offer details.");
+      setPhase1Logs("Error getting offer details.");
     }
   };
 
@@ -83,10 +85,10 @@ const Home = () => {
         assetId: assetId,
       });
       setPhase1Completed(true);
-      setMessage(response.data);
+      setPhase1Logs(response.data);
     } catch (error) {
       console.error("Error accepting offer:", error);
-      setMessage("Error accepting offer.");
+      setPhase1Logs("Error accepting offer.");
     }
   };
 
@@ -96,18 +98,21 @@ const Home = () => {
         assetId: assetId,
       });
       setOfferDetails(null);
+      setMinPrice("");
+      setFetchedMinPrice("");
       setOfferPrice("");
-      setMessage(response.data);
+      setFetchedMinPrice("");
+      setPhase1Logs(response.data);
     } catch (error) {
       console.error("Error rejecting offer:", error);
-      setMessage("Error rejecting offer.");
+      setPhase1Logs("Error rejecting offer.");
     }
   };
 
   const handleUploadInspectionReport = async () => {
     try {
       if (!inspectionReportFile) {
-        setMessage("Please select a file first.");
+        setPhase2Logs("Please select a file first.");
         return;
       }
 
@@ -126,10 +131,10 @@ const Home = () => {
         }
       );
 
-      setMessage(response.data);
+      setPhase2Logs(response.data);
     } catch (error) {
       console.error("Error uploading inspection report:", error);
-      setMessage("Error uploading inspection report.");
+      setPhase2Logs("Error uploading inspection report.");
     }
   };
 
@@ -147,10 +152,10 @@ const Home = () => {
       });
       const url = URL.createObjectURL(blob);
       setFileUrl(url);
-      setMessage("Inspection report fetched successfully!");
+      setPhase2Logs("Inspection report fetched successfully!");
     } catch (error) {
       console.error("Error fetching inspection report:", error);
-      setMessage("Error fetching inspection report.");
+      setPhase2Logs("Error fetching inspection report.");
     }
   };
 
@@ -159,10 +164,10 @@ const Home = () => {
       const response = await axios.post("http://localhost:8952/fundEscrow", {
         assetId,
       });
-      setMessage(response.data);
+      setPhase3Logs(response.data);
     } catch (error) {
       console.error("Error sending funds to escrow:", error);
-      setMessage("Error sending funds to escrow.");
+      setPhase3Logs("Error sending funds to escrow.");
     }
   };
 
@@ -172,10 +177,10 @@ const Home = () => {
         "http://localhost:8952/propertyTransfer",
         { assetId }
       );
-      setMessage(response.data);
+      setPhase3Logs(response.data);
     } catch (error) {
       console.error("Error transferring property:", error);
-      setMessage("Error transferring property.");
+      setPhase3Logs("Error transferring property.");
     }
   };
 
@@ -184,10 +189,10 @@ const Home = () => {
       const response = await axios.post("http://localhost:8952/releaseEscrow", {
         assetId,
       });
-      setMessage(response.data);
+      setPhase3Logs(response.data);
     } catch (error) {
       console.error("Error releasing funds:", error);
-      setMessage("Error releasing funds.");
+      setPhase3Logs("Error releasing funds.");
     }
   };
 
@@ -270,6 +275,16 @@ const Home = () => {
                   Reject Quote
                 </button>
               </div>
+              <div className="my-5">
+                <h5>Phase 1 Logs</h5>
+                <textarea
+                  className="p-4 form-control"
+                  rows="5"
+                  placeholder="Print logs here"
+                  disabled
+                  value={phase1Logs}
+                ></textarea>
+              </div>
             </div>
           </div>
           <div className="section mx-5 col-5">
@@ -304,13 +319,13 @@ const Home = () => {
                 </button>
               </div>
               <div className="my-5">
-                <h5>Inspector Report Logs</h5>
+                <h5>Phase 2 Logs</h5>
                 <textarea
                   className="p-4 form-control"
                   rows="5"
                   placeholder="Print logs here"
                   disabled
-                  value={message}
+                  value={phase2Logs}
                 ></textarea>
               </div>
               {fileUrl && (
@@ -324,7 +339,7 @@ const Home = () => {
           </div>
         </div>
         <div className="section mt-5">
-          <h2>Phase 3 : Escrow Transaction Logs</h2>
+          <h2>Phase 3 : Escrow Transaction </h2>
           <button
             className="btn btn-primary my-2 mx-5"
             onClick={handleSendFundsToEscrow}
@@ -343,6 +358,16 @@ const Home = () => {
           >
             Escrow Pays Seller
           </button>
+          <div className="my-5">
+            <h5>Phase 3 Logs</h5>
+            <textarea
+              className="p-4 form-control"
+              rows="5"
+              placeholder="Print logs here"
+              disabled
+              value={phase3Logs}
+            ></textarea>
+          </div>
         </div>
       </div>
     </div>
